@@ -63,7 +63,7 @@ def general_information(logfile, version, outdir, time_str):
 	print os.environ['PATH']
 
 	# Save CPU information
-	with open(os.path.join(outdir, 'cpu_information.' + time_str + '.cpu.txt')) as reader:
+	with open(os.path.join(outdir, 'cpu_information.' + time_str + '.cpu.txt'), 'wt') as reader:
 		command = ['cat', '/proc/cpuinfo']
 		run_successfully, stdout, stderr = runCommandPopenCommunicate(command, False, None)
 		reader.write(stdout)
