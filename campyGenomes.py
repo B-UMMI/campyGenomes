@@ -87,6 +87,7 @@ def downloadAndINNUca(outdir, run_ID, asperaKey, threads):
 
 	removeFiles(sample_directory, '.gz')
 	removeFiles(sample_directory, '.log')
+	removeFiles(sample_directory, '.cpu.txt')
 
 	if innuca_run_successfully:
 		time_taken = utils.runTime(start_time)
