@@ -10,9 +10,10 @@ import pickle
 
 
 def start_logger(workdir):
-	sys.stdout = Logger(workdir, time.strftime("%Y%m%d-%H%M%S"))
+	time_str = time.strftime("%Y%m%d-%H%M%S")
+	sys.stdout = Logger(workdir, time_str)
 	logfile = sys.stdout.getLogFile()
-	return logfile
+	return logfile, time_str
 
 
 class Logger(object):
@@ -33,7 +34,7 @@ class Logger(object):
 		return self.logfile
 
 
-def general_information(logfile, version):
+def general_information(logfile, version, outdir, time_str):
 	# Check if output directory exists
 
 	print '\n' + '==========> campyGenomes <=========='
@@ -60,6 +61,12 @@ def general_information(logfile, version):
 	# Print PATH variable
 	print '\n' + 'PATH variable:'
 	print os.environ['PATH']
+
+	# Save CPU information
+	with open(os.path.join(outdir, 'cpu_information.' + time_str + '.cpu.txt')) as reader:
+		command = ['cat', '/proc/cpuinfo']
+		run_successfully, stdout, stderr = runCommandPopenCommunicate(command, False, None)
+		reader.write(stdout)
 
 
 def scriptVersionGit(version, directory, script_path):

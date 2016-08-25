@@ -8,7 +8,7 @@ campyGenomes.py - Download and run INNUca in Campylobacter HTS public available 
 
 Copyright (C) 2016 Miguel Machado <mpmachado@medicina.ulisboa.pt>
 
-Last modified: August 22, 2016
+Last modified: August 25, 2016
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ import multiprocessing
 import time
 import shutil
 
-version = '0.1'
+version = '0.2'
 
 general_threads_to_use = [4, 8, 16, 32, 64, 128]
 
@@ -41,10 +41,10 @@ general_threads_to_use = [4, 8, 16, 32, 64, 128]
 def requiredPrograms():
 	programs_version_dictionary = {}
 
-	programs_version_dictionary['getSeqENA.py'] = ['--version', '==', '0.4']
+	programs_version_dictionary['getSeqENA.py'] = ['--version', '>=', '0.4']
 	programs_version_dictionary['ascp'] = ['--version', '>=', '3.6.1']
 
-	programs_version_dictionary['INNUca.py'] = ['--version', '==', '1.5']
+	programs_version_dictionary['INNUca.py'] = ['--version', '>=', '1.6']
 	programs_version_dictionary['bunzip2'] = ['--version', '>=', '1.0.6']
 	programs_version_dictionary['gunzip'] = ['--version', '>=', '1.6']
 	programs_version_dictionary['java'] = ['-version', '>=', '1.8']
@@ -130,10 +130,10 @@ def runCampyGenomes(args):
 	threads_to_use = [j for j in general_threads_to_use if j <= args.threads]
 
 	# Start logger
-	logfile = utils.start_logger(outdir)
+	logfile, time_str = utils.start_logger(outdir)
 
 	# Get general information
-	utils.general_information(logfile, version)
+	utils.general_information(logfile, version, outdir, time_str)
 
 	# Check programms
 	requiredPrograms()
@@ -145,31 +145,28 @@ def runCampyGenomes(args):
 
 	samples_each_threads = determineBatchSamples(listRunIDs, threads_to_use)
 
-	for threads in samples_each_threads:
-		print '\n' + 'Running for ' + str(threads) + ' threads' + '\n'
-		threads_dir = os.path.join(outdir, str(threads) + '_threads', '')
-		utils.check_create_directory(threads_dir)
-
-		pool = multiprocessing.Pool(processes=number_process[threads])
-		for sample in samples_each_threads[threads]:
-			pool.apply_async(downloadAndINNUca, args=(threads_dir, sample, asperaKey, threads,))
-		pool.close()
-		pool.join()
-
-		removeFiles(threads_dir, '.log')
-		removeFiles(threads_dir, 'getSeqENA.samples_with_problems.txt')
-
 	run_successfully = 0
-	with open(os.path.join(outdir, 'samples_with_problems.tab'), 'wt') as writer_success:
-		with open(os.path.join(outdir, 'running_times.tab'), 'wt') as writer_times:
+	with open(os.path.join(outdir, 'samples_with_problems.' + time_str + '.tab'), 'wt') as writer_success:
+		with open(os.path.join(outdir, 'running_times.' + time_str + '.tab'), 'wt') as writer_times:
 
-			threads_directories = [d for d in os.listdir(outdir) if not d.startswith('.') and os.path.isdir(os.path.join(outdir, d, ''))]
-			for threads_dir in threads_directories:
-				threads_dir_path = os.path.join(outdir, threads_dir, '')
+			for threads in samples_each_threads:
+				print '\n' + 'Running for ' + str(threads) + ' threads' + '\n'
+				threads_dir = os.path.join(outdir, str(threads) + '_threads', '')
+				utils.check_create_directory(threads_dir)
 
-				samples_directories = [d for d in os.listdir(threads_dir_path) if not d.startswith('.') and os.path.isdir(os.path.join(threads_dir_path, d, ''))]
+				pool = multiprocessing.Pool(processes=number_process[threads])
+				for sample in samples_each_threads[threads]:
+					pool.apply_async(downloadAndINNUca, args=(threads_dir, sample, asperaKey, threads,))
+				pool.close()
+				pool.join()
+
+				removeFiles(threads_dir, '.log')
+				removeFiles(threads_dir, 'getSeqENA.samples_with_problems.txt')
+				removeFiles(threads_dir, '.cpu.txt')
+
+				samples_directories = [d for d in os.listdir(threads_dir) if not d.startswith('.') and os.path.isdir(os.path.join(threads_dir, d, ''))]
 				for sample_dir in samples_directories:
-					sample_dir_path = os.path.join(threads_dir_path, sample_dir, '')
+					sample_dir_path = os.path.join(threads_dir, sample_dir, '')
 
 					files = [f for f in os.listdir(sample_dir_path) if not f.startswith('.') and os.path.isfile(os.path.join(sample_dir_path, f))]
 					for file_found in files:
