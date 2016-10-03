@@ -33,7 +33,7 @@ import multiprocessing
 import time
 import shutil
 
-version = '0.2'
+version = '0.3'
 
 general_threads_to_use = [4, 8, 16, 32, 64, 128]
 
@@ -43,8 +43,7 @@ def requiredPrograms():
 
 	programs_version_dictionary['getSeqENA.py'] = ['--version', '>=', '0.4']
 	programs_version_dictionary['ascp'] = ['--version', '>=', '3.6.1']
-
-	programs_version_dictionary['INNUca.py'] = ['--version', '>=', '1.6']
+	programs_version_dictionary['INNUca.py'] = ['--version', '>=', '1.8']
 	programs_version_dictionary['gunzip'] = ['--version', '>=', '1.6']
 	programs_version_dictionary['java'] = ['-version', '>=', '1.8']
 	programs_version_dictionary['mlst'] = ['--version', '>=', '2.4']
@@ -75,7 +74,7 @@ def downloadAndINNUca(outdir, run_ID, asperaKey, threads):
 
 	innuca_run_successfully = False
 	if getSeqENA_run_successfully:
-		command = ['INNUca.py', '-i', sample_directory, '-s', '"Campylobacter jejuni"', '-g', '1.6', '-o', sample_directory, '-j', str(threads), '--spadesSaveReport', '--pilonKeepSPAdesAssembly']
+		command = ['INNUca.py', '-i', sample_directory, '-s', '"Campylobacter jejuni"', '-g', '1.6', '-o', sample_directory, '-j', str(threads), '--jarMaxMemory', 'auto']
 		innuca_run_successfully, stdout, stderr = utils.runCommandPopenCommunicate(command, False, None)
 
 		innuca_dir = os.path.join(sample_directory, run_ID, '')
