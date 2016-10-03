@@ -45,7 +45,6 @@ def requiredPrograms():
 	programs_version_dictionary['ascp'] = ['--version', '>=', '3.6.1']
 
 	programs_version_dictionary['INNUca.py'] = ['--version', '>=', '1.6']
-	programs_version_dictionary['bunzip2'] = ['--version', '>=', '1.0.6']
 	programs_version_dictionary['gunzip'] = ['--version', '>=', '1.6']
 	programs_version_dictionary['java'] = ['-version', '>=', '1.8']
 	programs_version_dictionary['mlst'] = ['--version', '>=', '2.4']
@@ -181,7 +180,7 @@ def runCampyGenomes(args):
 							os.remove(file_path)
 						elif file_found == sample_dir + '_downloadAndINNUca_time.pkl':
 							time_taken = utils.extractVariableFromPickle(file_path)
-							writer_times.write(sample_dir + '\t' + str(time_taken) + '\n')
+							writer_times.write(sample_dir + '\t' + threads_dir + '\t' + str(time_taken) + '\n')
 							os.remove(file_path)
 
 	time_taken = utils.runTime(start_time)
